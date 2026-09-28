@@ -2,46 +2,60 @@
 
 ## Summary
 
-A controlled test on `test-missing-heading` changed the heading in `hours.md` from `# Opening Hours` to `# Clinic Hours`. This simulated an editor accidentally changing a required heading. The automated check detected the change. Restoring the original heading produced a successful run.
+A controlled coursework test on `test-missing-heading` changed the heading in `hours.md` from `# Opening Hours` to `# Clinic Hours`. The automated check detected the change. Restoring the original heading produced a successful run.
 
-This was a coursework test, not a live clinic outage.
+This was a deliberate test, not a live clinic outage. The sections below follow the six-step method in the Student Reading Manual, Chapter 11, page 238.
 
-## 1. Identify the Problem
+## 1. Reproduce
 
-The Clinic content checks workflow failed after the heading was renamed in commit `0730252`.
+The failure condition was deliberately introduced in commit `0730252` by renaming the required heading to `# Clinic Hours` and pushing the change.
 
-## 2. Collect Evidence
+[Run #5 failed](https://github.com/m1n1m0n0/riverside-clinic-devops/actions/runs/36407119922). This records one controlled failing run; repeated reproduction was not separately tested.
 
-[Failed run #5](https://github.com/m1n1m0n0/riverside-clinic-devops/actions/runs/36407119922) reported:
+## 2. Read
+
+The failed run reported:
 
 > Missing required heading: # Opening Hours
 
 > Process completed with exit code 1.
 
-The run was triggered by a push to `test-missing-heading`.
+The first message identifies the unmet requirement. The exit code confirms failure but does not, by itself, explain the cause.
 
-## 3. Form a Hypothesis
+## 3. Isolate
 
-The check requires the exact line `# Opening Hours`. Changing that line to `# Clinic Hours` caused the content validation to fail.
+The relevant step was `Check required clinic headings`, and the affected file was `hours.md`.
 
-## 4. Test One Change
+The heading check uses:
 
-Only the heading was restored to `# Opening Hours`, in commit `59d9dcc`. The workflow was left unchanged so the next run tested the proposed fix against the same requirement.
+`grep -Fxq '# Opening Hours' hours.md`
 
-## 5. Verify Recovery
+The changed heading no longer matched the required complete line. The file still existed, and the workflow itself had not changed.
 
-[Recovery run #6](https://github.com/m1n1m0n0/riverside-clinic-devops/actions/runs/36407233767) passed on the same branch.
+## 4. Hypothesize
 
-The failed run followed by the successful recovery supports the hypothesis that the heading change caused the failure. Both runs are retained as evidence.
+Changing `# Opening Hours` to `# Clinic Hours` caused the exact-heading check to fail; restoring the required heading should make the same check pass.
 
-## 6. Prevent Recurrence
+## 5. Test One Change
 
-The coordinator should preserve required headings when updating the content beneath them. Before merging a change, the reviewer should check the file differences and confirm that the content checks pass.
+Only the heading was restored to `# Opening Hours`, in commit `59d9dcc`. The workflow was left unchanged.
 
-If a heading needs to change intentionally, the content requirement and its automated check should be reviewed together.
+[Recovery run #6 passed](https://github.com/m1n1m0n0/riverside-clinic-devops/actions/runs/36407233767). The result supports the hypothesis because restoring the heading resolved the failure without changing the check.
 
-## Failure Analysis and Limitations
+## 6. Document
 
-The observed failure was a content validation failure: the edited file no longer met the exact heading requirement.
+This incident record preserves the deliberate change, error messages, hypothesis, corrective change, and links to both runs. The test and recovery commits were included in pull request #4.
 
-The check detected a structural change. It does not establish that the listed opening hours or services are factually correct; those still require manual review.
+To prevent recurrence, the coordinator should preserve required headings when editing the content beneath them. Reviewers should inspect the changes and confirm successful checks before merging. Intentional heading changes should include a review of the corresponding requirement and automated check.
+
+## Failure Category
+
+**Category 6: A real defect**, using the categories in the Student Reading Manual, Chapter 11, page 246.
+
+The deliberately edited content violated the agreed heading requirement. A specific check correctly failed with a meaningful message. The defect was in the content relative to that requirement.
+
+This was not a missing-file failure: `hours.md` remained present. The missing item was a required line inside it.
+
+## Limitations
+
+The test demonstrates detection of a heading mismatch and recovery after correction. It does not prove that the listed opening hours or services are accurate. Those details still require manual review.
