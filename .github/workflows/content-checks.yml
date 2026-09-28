@@ -1,0 +1,45 @@
+name: Clinic content checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check-content:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Check required content files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in hours.md services.md; do
+            if [ ! -s "$file" ]; then
+              echo "::error file=$file::Required content file is missing or empty."
+              exit 1
+            fi
+            echo "PASS: $file exists and is not empty."
+          done
+
+      - name: Check required clinic headings
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! grep -Fxq '# Opening Hours' hours.md; then
+            echo "::error file=hours.md::Missing required heading: # Opening Hours"
+            exit 1
+          fi
+
+          if ! grep -Fxq '## Available Services' services.md; then
+            echo "::error file=services.md::Missing required heading: ## Available Services"
+            exit 1
+          fi
+
+          echo "PASS: Both required clinic headings are present."
