@@ -1,4 +1,4 @@
-# Clinic Hours
+# Opening Hours
 
 This is fictional clinic information for a coursework project.
 
