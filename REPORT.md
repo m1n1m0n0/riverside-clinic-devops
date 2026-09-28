@@ -24,7 +24,7 @@ I used an AI assistant for step-by-step GitHub guidance, workflow code, and docu
 
 This followed screenshots showing the project’s progress; the assistant used the conversation context to suggest the next steps. The assistance was substantial, including the workflow and report structure.
 
-I tested the suggested workflow by changing the required heading, observing the failure, restoring the heading, and confirming a successful run. This verified the opening-hours heading check. It did not test every failure condition or prove that clinic information was accurate. The incident headings and failure-category wording still need comparison with the course’s exact terminology.
+I tested the suggested workflow by changing the required heading, observing the failure, restoring the heading, and confirming a successful run. This verified the opening-hours heading check. It did not test every failure condition or prove that clinic information was accurate. I also checked the incident report against Chapter 11 of the Student Reading Manual and aligned it with the six-step method and Category 6, “A real defect.”
 
 ## Reflection
 
